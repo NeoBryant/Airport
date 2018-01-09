@@ -1,0 +1,65 @@
+特别关心：
+飞机起飞/着陆前需要等待的时间；
+
+
+
+Plane类：
+一个对象表示单个飞机
+
+数据：
+航班号；到达/离开机场系统的时间；到达/离开时plane的状态；
+方法：
+（0）初始化；
+（1）起飞；
+（2）着陆；
+
+
+Runway类：
+跑道--处理起飞和着陆的精确细节，在这个跑道里面，着陆比起飞优先，仅当队列landing是空的，才允许takeoff：
+数据：
+跑道状态；
+方法：
+跑道操作（起飞/着陆）；
+记录操作/保存统计量（被处理的飞机数，花费在等待上的平均时间，被拒绝服务的飞机数目）；
+
+
+Random类：
+数据：
+飞机的随机特征（等待起飞/等待着陆/正在起飞/正在着陆）
+方法：
+int poisson（float）；这里的浮点型参数表示一个平均结果；
+//这个函数返回某个特定单元时间正在准备着陆或者起飞的飞机的随机数目；
+#include <limits.h> 
+#include "random.h" 
+#include <cmath> 
+#include <time.h>  
+Random::Random(bool peseudo) {
+  	if(peseudo) seed=1;
+    else   
+    	seed = time(NULL)%INT_MAX;  
+    multiplier = 2743;
+    add_on = 5923; 
+}   
+int Random::reseed() {
+	  seed = seed*multiplier + add_on;  
+	  return seed; 
+}   
+double Random::random_real() {  
+	double max = INT_MAX + 1.0;  
+	double temp = reseed();  
+	if (temp < 0)temp = temp + max;  
+	return temp/max; 
+}   
+int Random::possion(double mean) {  
+	double limit = exp(-mean);  
+	double product = random_real();  
+	int count = 0;  
+	while(product > limit)  {   
+		count++;   
+		product *=random_real();  
+	}  
+	return count; 
+} 
+
+
+后期数据统计：
